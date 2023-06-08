@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.HashSet;
 
 /**
  * GUI main page.
@@ -238,6 +239,10 @@ public class MainPage {
         sortBox.addItem("Same Workplace");
         JButton addButton = new JButton("Add New Friend");
 
+        addButton.addActionListener(e -> {
+
+        });
+
         titleHBox.add(titleLabel);
         titleHBox.add(Box.createHorizontalGlue());
         titleHBox.add(sortLabel);
@@ -266,15 +271,10 @@ public class MainPage {
      * @return the friends list, in JList.
      */
     private JList<String> friendsList(int sortMode) {
-        File friendsFile = new File("social_network.txt");
-
-        String[] friends = {
-                "Jason",
-                "Siyu",
-                "Chengyang"
-        };                      // TODO 此处为主动设定
-
-        JList<String> friendsList = new JList<>(friends);
+        JList<String> friendsList = new JList<>();
+        for (User user: currentUser.getFriends()) {
+            friendsList.add(new JLabel(user.getName()));
+        }
 
         friendsList.setFont(FONT_POST_AUTHOR);
         friendsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -290,16 +290,6 @@ public class MainPage {
             }
         });
 
-        // TODO 显示悬浮提示： ID，家乡，工作地点。
-        friendsList.addMouseMotionListener(new MouseInputAdapter() {
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                int index = friendsList.locationToIndex(e.getPoint());
-                friendsList.setSelectedIndex(index);
-                friendsList.setToolTipText(showFriendDetails(index));   // TODO 相应操作
-            }
-        });
-
         return friendsList;
     }
 
@@ -309,15 +299,6 @@ public class MainPage {
      */
     private void showSelectedFriendPage(String friend) {
         JOptionPane.showMessageDialog(mainPage, "History posts for " + friend);
-    }
-
-    /**
-     * 展示悬浮提示。
-     * @param index TODO：此处可能需要调整参数类型，比如换成ID，以便查找。
-     * @return the friend's ID, hometown and workplace. 悬浮提示文本。
-     */
-    private String showFriendDetails(int index) {
-        return "Fuck you";
     }
 
     /**
@@ -430,8 +411,11 @@ public class MainPage {
         nameInfoVBox.add(Box.createVerticalStrut(10));
         nameInfoVBox.add(workplaceLabel);
 
-        ImageIcon jasonPic = new ImageIcon("Pic.jpg");
-        Image avatarPic = jasonPic.getImage().getScaledInstance(100,100,Image.SCALE_SMOOTH);
+        String currentWorkingDirectory = System.getProperty("user.dir");
+        String avatarFilePath = currentUser.getAvatarFilePath();
+        String completeFilePath = currentWorkingDirectory + File.separator + avatarFilePath; // TODO
+        ImageIcon image = new ImageIcon(completeFilePath);
+        Image avatarPic = image.getImage().getScaledInstance(100,100,Image.SCALE_SMOOTH);
         JLabel avatarLabel = new JLabel();
         avatarLabel.setIcon(new ImageIcon(avatarPic));
 
@@ -450,7 +434,7 @@ public class MainPage {
 
         // TODO 链接我的历史帖子
 
-        myPostPanel.add(createPost(jasonPic,"Jason Cai", "2h", "Hello!"));
+        myPostPanel.add(createPost(image,"Jason Cai", "2h", "Hello!"));
 
         JLabel bottomLabel = new JLabel("No more posts!");
         myPostPanel.add(bottomLabel);

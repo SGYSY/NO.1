@@ -37,13 +37,14 @@ public class LogInPage {
             while ((line = reader.readLine()) != null) {
                 String[] fields = line.split(",");
 
-                if (fields.length >= 4) {
+                if (fields.length >= 5) {
                     String userID = fields[0].trim();
                     String name = fields[1].trim();
                     String workplace = fields[2].trim();
                     String hometown = fields[3].trim();
+                    String avatarFilePath = fields[4].trim();
 
-                    User user = new User(userID, name, workplace, hometown);
+                    User user = new User(userID, name, workplace, hometown, avatarFilePath);
                     avlTree.insert(user);
                 }
             }

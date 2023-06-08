@@ -8,12 +8,14 @@ public class User implements Comparable<User> {
     private String hometown;
     private HashSet<User> friends;
     private LinkedList<Post> posts;
+    private String avatarFilePath;
 
-    public User(String userID, String name, String workplace, String hometown) {
+    public User(String userID, String name, String workplace, String hometown, String avatarFilePath) {
         this.userID = userID;
         this.name = name;
         this.workplace = workplace;
         this.hometown = hometown;
+        this.avatarFilePath = avatarFilePath;
         this.friends = new HashSet<>();
         this.posts = new LinkedList<>();
     }
@@ -43,6 +45,10 @@ public class User implements Comparable<User> {
         this.posts = posts;
     }
 
+    public void setAvatarFilePath(String avatarFilePath) {
+        this.avatarFilePath = avatarFilePath;
+    }
+
     public String getID() {
         return userID;
     }
@@ -65,6 +71,10 @@ public class User implements Comparable<User> {
 
     public LinkedList<Post> getPosts() {
         return posts;
+    }
+
+    public String getAvatarFilePath() {
+        return avatarFilePath;
     }
 
     @Override
