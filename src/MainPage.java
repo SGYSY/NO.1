@@ -1,10 +1,18 @@
 import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
+import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Collections;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
 
 /**
  * GUI main page.
@@ -15,8 +23,9 @@ public class MainPage {
     private final JFrame mainPage;
     private JButton homeButton, friendsButton, postButton, selfButton;
     private final JPanel contentPanel;
-    private User currentUser;
-    public static AVLTree avlTree;
+    private final User currentUser;
+    private int friendSortMode = 0;
+    public static AVLTree avlTree = new AVLTree();
 
     // Colors and fonts used.
     private final Color COLOR_THEME = new Color(0, 191, 255);    // TODO 微调。
@@ -110,7 +119,7 @@ public class MainPage {
     /**
      * 栏目1：主页模式（启动时默认，发完帖子后默认）
      */
-    private void showHomePage() {
+    public void showHomePage() {
         homeButton.setBackground(COLOR_THEME);
         friendsButton.setBackground(COLOR_DEFAULT);
         postButton.setBackground(COLOR_DEFAULT);
@@ -216,7 +225,7 @@ public class MainPage {
     /**
      * 栏目2：好友列表模式。
      */
-    private void showFriendsPage() {
+    public void showFriendsPage() {
         homeButton.setBackground(COLOR_DEFAULT);
         friendsButton.setBackground(COLOR_THEME);
         postButton.setBackground(COLOR_DEFAULT);
@@ -237,10 +246,34 @@ public class MainPage {
         sortBox.addItem("All My Friends");
         sortBox.addItem("Same Hometown");
         sortBox.addItem("Same Workplace");
+
+        sortBox.setSelectedIndex(friendSortMode);
+
         JButton addButton = new JButton("Add New Friend");
 
-        addButton.addActionListener(e -> {
+        sortBox.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                String selectedMode = (String) sortBox.getSelectedItem();
+                assert selectedMode != null;
+                switch (selectedMode) {
+                    case "All My Friends" ->{
+                        friendSortMode = 0;
+                        showFriendsPage();
+                    }
+                    case "Same Hometown" -> {
+                        friendSortMode = 1;
+                        showFriendsPage();
+                    }
+                    case "Same Workplace" -> {
+                        friendSortMode = 2;
+                        showFriendsPage();
+                    }
+                }
+            }
+        });
 
+        addButton.addActionListener(e -> {
+            new AddPage(this);
         });
 
         titleHBox.add(titleLabel);
@@ -255,7 +288,7 @@ public class MainPage {
         titleVBox.add(titleHBox);
         titleVBox.add(Box.createVerticalStrut(10));
 
-        JScrollPane scrollPane = new JScrollPane(friendsList(0)); // TODO 此处链接相关数据获取朋友
+        JScrollPane scrollPane = new JScrollPane(friendsList(friendSortMode)); // TODO 此处链接相关数据获取朋友
 
         contentPanel.add(titleVBox,BorderLayout.NORTH);
         contentPanel.add(scrollPane,BorderLayout.CENTER);
@@ -271,15 +304,36 @@ public class MainPage {
      * @return the friends list, in JList.
      */
     private JList<String> friendsList(int sortMode) {
-        JList<String> friendsList = new JList<>();
-        for (User user: currentUser.getFriends()) {
-            friendsList.add(new JLabel(user.getName()));
+        List<String> sortedList = new ArrayList<>(currentUser.getFriends().size());
+
+        switch (sortMode) {
+            case 0 -> {
+                for (User user : currentUser.getFriends()) {
+                    sortedList.add(user.getName());
+                }
+            }
+            case 1 -> {
+                for (User user : currentUser.filterFriendsByHometown(currentUser.getHometown())) {
+                    sortedList.add(user.getName());
+                }
+            }
+            case 2 -> {
+                for (User user : currentUser.filterFriendsByWorkplace(currentUser.getWorkplace())) {
+                    sortedList.add(user.getName());
+                }
+            }
+        }
+        Collections.sort(sortedList);
+
+        DefaultListModel<String> defaultListModel = new DefaultListModel<>();
+        for (String friendName : sortedList) {
+            defaultListModel.addElement(friendName);
         }
 
+        JList<String> friendsList = new JList<>(defaultListModel);
         friendsList.setFont(FONT_POST_AUTHOR);
         friendsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        // TODO 鼠标点击，打开TA的个人主页。
         friendsList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -292,6 +346,8 @@ public class MainPage {
 
         return friendsList;
     }
+
+
 
     /**
      * 展示好友的主页.
@@ -459,12 +515,30 @@ public class MainPage {
         contentPanel.add(selfInfoHBox, BorderLayout.CENTER);
 
         editButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(null,"这个界面尚未做完");
-            // new EditPage(currentUser);
+            new EditPage(currentUser);
         });
 
         mainPage.revalidate();
         mainPage.repaint();
+        saveUsersToFile(avlTree,"\"C:\\Users\\YANSIYU\\IdeaProjects\\Social Meida\\social_network.txt\"");
     }
+
+    public User getCurrentUser() {
+        return currentUser;
+    }
+    public void saveUsersToFile(AVLTree avlTree, String filePath) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            for (AVLNode node : avlTree.inOrderTraversal()) {
+                User user = node.getData();
+                String line = user.getID() + "," + user.getName() + "," + user.getWorkplace() + ","
+                        + user.getHometown() + "," + user.getAvatarFilePath() + "," + user.getFriendsData();
+                writer.write(line);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
 

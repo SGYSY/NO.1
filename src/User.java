@@ -9,8 +9,9 @@ public class User implements Comparable<User> {
     private HashSet<User> friends;
     private LinkedList<Post> posts;
     private String avatarFilePath;
+    private String friendsData;
 
-    public User(String userID, String name, String workplace, String hometown, String avatarFilePath) {
+    public User(String userID, String name, String workplace, String hometown, String avatarFilePath, String friendsData) {
         this.userID = userID;
         this.name = name;
         this.workplace = workplace;
@@ -18,6 +19,7 @@ public class User implements Comparable<User> {
         this.avatarFilePath = avatarFilePath;
         this.friends = new HashSet<>();
         this.posts = new LinkedList<>();
+        this.friendsData = friendsData;
     }
 
     // Getter and setter methods
@@ -47,6 +49,10 @@ public class User implements Comparable<User> {
 
     public void setAvatarFilePath(String avatarFilePath) {
         this.avatarFilePath = avatarFilePath;
+    }
+
+    public void setFriendsData(String friendsData) {
+        this.friendsData = friendsData;
     }
 
     public String getID() {
@@ -83,19 +89,20 @@ public class User implements Comparable<User> {
         return this.userID.compareTo(otherUser.userID);
     }
 
-    public void addFriend(User user, User currentUser) {
-        currentUser.getFriends().add(user);
+    public void addFriend(User user) {
+        friends.add(user);
+
     }
 
-    public boolean isFriend(User user, User currentUser) {
-        return currentUser.getFriends().contains(user);
+    public boolean isFriend(User user) {
+        return friends.contains(user);
     }
 
-    public HashSet<User> getCommonFriends(User myFriend, User currentUser) {
+    public HashSet<User> getCommonFriends(User myFriend) {
         HashSet<User> commonFriends = new HashSet<>();
 
         // 遍历当前用户的好友列表
-        for (User friend : currentUser.getFriends()) {
+        for (User friend : friends) {
             // 如果对方用户的好友列表中也包含当前用户，说明是共同好友
             if (myFriend.getFriends().contains(friend)) {
                 commonFriends.add(friend);
@@ -105,11 +112,16 @@ public class User implements Comparable<User> {
         return commonFriends;
     }
 
-    public HashSet<User> filterFriendsByHometown(String hometown, User currentUser) {
+    public String getFriendsData() {
+        // 返回friendsData字段的值
+        return friendsData;
+    }
+
+    public HashSet<User> filterFriendsByHometown(String hometown) {
         HashSet<User> hometownFriends = new HashSet<>();
 
         // 遍历好友列表
-        for (User friend : currentUser.getFriends()) {
+        for (User friend : friends) {
             // 如果好友的家乡与指定的家乡相同，则将其添加到筛选后的好友列表中
             if (friend.getHometown().equals(hometown)) {
                 hometownFriends.add(friend);
@@ -119,11 +131,11 @@ public class User implements Comparable<User> {
         return hometownFriends;
     }
 
-    public HashSet<User> filterFriendsByWorkplace(String workplace, User currentUser) {
+    public HashSet<User> filterFriendsByWorkplace(String workplace) {
         HashSet<User> workplaceFriends = new HashSet<>();
 
         // 遍历好友列表
-        for (User friend : currentUser.getFriends()) {
+        for (User friend : friends) {
             // 如果好友的工作地点与指定的工作地点相同，则将其添加到筛选后的好友列表中
             if (friend.getWorkplace().equals(workplace)) {
                 workplaceFriends.add(friend);

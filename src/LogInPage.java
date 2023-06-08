@@ -3,6 +3,7 @@ import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashSet;
 
 public class LogInPage {
     private final JFrame logInFrame;
@@ -37,22 +38,46 @@ public class LogInPage {
             while ((line = reader.readLine()) != null) {
                 String[] fields = line.split(",");
 
-                if (fields.length >= 5) {
+                if (fields.length >= 7) {
                     String userID = fields[0].trim();
                     String name = fields[1].trim();
                     String workplace = fields[2].trim();
                     String hometown = fields[3].trim();
                     String avatarFilePath = fields[4].trim();
+                    String friendsData = fields[5].trim();
 
-                    User user = new User(userID, name, workplace, hometown, avatarFilePath);
+                    User user = new User(userID, name, workplace, hometown, avatarFilePath, friendsData);
+                    user.setFriendsData(friendsData); // 设置好友数据
+                    user.setAvatarFilePath(avatarFilePath);
                     avlTree.insert(user);
                 }
+            }
+
+            // 遍历用户对象，设置朋友列表
+            for (AVLNode node : avlTree.inOrderTraversal()) {
+                User user = node.getData();
+                HashSet<User> friends = getFriendsFromData(user.getFriendsData(), avlTree);
+                user.setFriends(friends);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         return avlTree;
+    }
+
+
+    private HashSet<User> getFriendsFromData(String friendsData, AVLTree avlTree) {
+        HashSet<User> friends = new HashSet<>();
+        String[] friendIDs = friendsData.split(",");
+        for (String friendID : friendIDs) {
+            AVLNode friendNode = avlTree.query(friendID.trim());
+            if (friendNode != null) {
+                User friend = friendNode.getData();
+                friends.add(friend);
+            }
+        }
+        return friends;
     }
 
     private void showLogPage() {

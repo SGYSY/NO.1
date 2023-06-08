@@ -2,17 +2,18 @@ import javax.swing.*;
 import java.awt.*;
 
 public class EditPage {
-    private User currentUser;
+    private final User currentUser;
     private final JFrame editFrame;
     private final JPanel contentPanel;
     private final Color COLOR_THEME = new Color(0, 191, 255);    // TODO 微调。
     private final Font FONT_EDIT_TITLE = new Font("Microsoft Sans Serif", Font.BOLD, 20);
     private final Font FONT_EDIT_REQUEST = new Font("Microsoft Sans Serif", Font.PLAIN, 15);
+
     public EditPage(User currentUser) {
         this.currentUser = currentUser;
 
         editFrame = new JFrame("Edit Profile");
-        editFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        editFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         contentPanel = new JPanel();
 
@@ -20,7 +21,8 @@ public class EditPage {
 
         showEditPage();
 
-        editFrame.setSize(800,600);
+        editFrame.setSize(500,400);
+        editFrame.setResizable(false);
         editFrame.setVisible(true);
     }
 
@@ -28,7 +30,7 @@ public class EditPage {
         contentPanel.removeAll();
         contentPanel.setLayout(new BorderLayout());
 
-        JLabel titleLabel = new JLabel("Edit Your Profile");
+        JLabel titleLabel = new JLabel("  Edit Your Profile");
         titleLabel.setFont(FONT_EDIT_TITLE);
         titleLabel.setForeground(COLOR_THEME);
 
@@ -37,12 +39,15 @@ public class EditPage {
 
         JButton avatarChangeButton = new JButton("Upload");
 
-        /*
-        ImageIcon currentAvatar = currentUser.getAvatar();
+        avatarChangeButton.addActionListener(e -> {
+            // TODO 读取文件更新头像
+        });
+
+        String avatarFilePath = currentUser.getAvatarFilePath();
+        ImageIcon currentAvatar = new ImageIcon(avatarFilePath);
         Image avatarPic = currentAvatar.getImage().getScaledInstance(100,100,Image.SCALE_SMOOTH);
         JLabel avatarPicLabel = new JLabel();
         avatarPicLabel.setIcon(new ImageIcon(avatarPic));
-         */
 
         JLabel nameLabel = new JLabel("Name:");
         nameLabel.setFont(FONT_EDIT_REQUEST);
@@ -50,20 +55,19 @@ public class EditPage {
         JLabel hometownLabel = new JLabel("Hometown:");
         hometownLabel.setFont(FONT_EDIT_REQUEST);
 
-        JLabel workplaceLabel = new JLabel("Workplace");
+        JLabel workplaceLabel = new JLabel("Workplace:");
         workplaceLabel.setFont(FONT_EDIT_REQUEST);
 
         JTextField nameField = new JTextField();
         JTextField hometownField = new JTextField();
         JTextField workplaceField = new JTextField();
 
-        nameField.setFont(FONT_EDIT_TITLE);
-        hometownField.setFont(FONT_EDIT_TITLE);
-        workplaceField.setFont(FONT_EDIT_TITLE);
+        nameField.setFont(FONT_EDIT_REQUEST);
+        hometownField.setFont(FONT_EDIT_REQUEST);
+        workplaceField.setFont(FONT_EDIT_REQUEST);
 
         FontMetrics fontMetrics = nameField.getFontMetrics(FONT_EDIT_TITLE);
         int h = fontMetrics.getHeight();
-        nameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, h + 5));
 
         JTextField passwordRequestField = new JTextField();
         passwordRequestField.setFont(FONT_EDIT_TITLE);
@@ -76,30 +80,34 @@ public class EditPage {
         hometownField.setText(currentUser.getHometown());
         workplaceField.setText(currentUser.getWorkplace());
 
-        JButton confirmButton = new JButton("Confirm");
+        JButton confirmButton = new JButton("Update");
+
+        confirmButton.addActionListener(e -> {
+            // TODO 更新修改操作
+        });
 
         Box titleVBox = Box.createVerticalBox();
         titleVBox.add(Box.createVerticalStrut(10));
         titleVBox.add(titleLabel);
         titleVBox.add(Box.createVerticalStrut(5));
 
-        Box avatarLabelVBox = Box.createHorizontalBox();
+        Box avatarLabelVBox = Box.createVerticalBox();
         avatarLabelVBox.add(avatarLabel);
         avatarLabelVBox.add(Box.createVerticalStrut(10));
         avatarLabelVBox.add(avatarChangeButton);
 
         Box labelVBox = Box.createVerticalBox();
         labelVBox.add(avatarLabelVBox);
-        labelVBox.add(Box.createVerticalStrut(20));
+        labelVBox.add(Box.createVerticalStrut(60));
         labelVBox.add(nameLabel);
-        labelVBox.add(Box.createVerticalStrut(10));
+        labelVBox.add(Box.createVerticalStrut(20));
         labelVBox.add(hometownLabel);
-        labelVBox.add(Box.createVerticalStrut(10));
+        labelVBox.add(Box.createVerticalStrut(20));
         labelVBox.add(workplaceLabel);
         labelVBox.add(Box.createVerticalStrut(20));
 
         Box infoVBox = Box.createVerticalBox();
-        // infoVBox.add(avatarPicLabel);
+        infoVBox.add(avatarPicLabel);
         infoVBox.add(Box.createVerticalStrut(20));
         infoVBox.add(nameField);
         infoVBox.add(Box.createVerticalStrut(10));
@@ -109,11 +117,16 @@ public class EditPage {
         infoVBox.add(Box.createVerticalStrut(20));
 
         Box editHBox = Box.createHorizontalBox();
-        editHBox.add(Box.createHorizontalGlue());
+        editHBox.add(Box.createHorizontalStrut(20));
         editHBox.add(labelVBox);
         editHBox.add(Box.createHorizontalStrut(10));
         editHBox.add(infoVBox);
-        editHBox.add(Box.createHorizontalGlue());
+        editHBox.add(Box.createHorizontalStrut(20));
+
+        Box editVBox = Box.createVerticalBox();
+        editVBox.add(Box.createVerticalStrut(15));
+        editVBox.add(editHBox);
+        editVBox.add(Box.createVerticalGlue());
 
         Box confirmHBox = Box.createHorizontalBox();
         confirmHBox.add(Box.createHorizontalGlue());

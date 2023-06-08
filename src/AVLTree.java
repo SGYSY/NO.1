@@ -1,4 +1,5 @@
-
+import java.util.ArrayList;
+import java.util.List;
 public class AVLTree {
     AVLNode root;
 
@@ -58,10 +59,17 @@ public class AVLTree {
         }
     }
 
-    public void inOrder(AVLNode root) {
-        if (root != null) {
-            inOrder(root.lchild);
-            inOrder(root.rchild);
+    public List<AVLNode> inOrderTraversal() {
+        List<AVLNode> nodes = new ArrayList<>();
+        inOrder(root, nodes);
+        return nodes;
+    }
+
+    private void inOrder(AVLNode node, List<AVLNode> nodes) {
+        if (node != null) {
+            inOrder(node.lchild, nodes);
+            nodes.add(node);
+            inOrder(node.rchild, nodes);
         }
     }
 
